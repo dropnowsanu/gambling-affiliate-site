@@ -1,0 +1,57 @@
+// Prisma schema for gambling affiliate directory
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  name          String?
+  passwordHash  String
+  role          Role     @default(ADMIN)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+enum Role {
+  ADMIN
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  name      String
+  createdAt DateTime @default(now())
+  ads       AdCard[] @relation("AdCardCategories")
+}
+
+model AdCard {
+  id              String   @id @default(cuid())
+  slug            String   @unique
+  name            String
+  description     String?  @db.Text
+  welcomeOffer    String
+  logoUrl         String
+  logoPublicId    String?
+  signupUrl       String
+  loginUrl        String?
+  rating          Float?   @default(0)
+  paymentMethods  String[] @default([])
+  tags            String[] @default([])
+  displayOrder    Int      @default(0)
+  featured        Boolean  @default(false)
+  published       Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  categories Category[] @relation("AdCardCategories")
+
+  @@index([published, displayOrder])
+  @@index([featured])
+}
