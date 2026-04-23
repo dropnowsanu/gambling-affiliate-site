@@ -11,6 +11,10 @@ export default async function EditAdPage(
     where: { id },
     include: {
       providers: { orderBy: [{ kind: "asc" }, { displayOrder: "asc" }] },
+      highlights: { orderBy: [{ kind: "asc" }, { displayOrder: "asc" }] },
+      facts: { orderBy: { displayOrder: "asc" } },
+      faqs: { orderBy: { displayOrder: "asc" } },
+      sections: { orderBy: { displayOrder: "asc" } },
     },
   });
   if (!ad) notFound();
@@ -25,17 +29,42 @@ export default async function EditAdPage(
     logoPublicId: ad.logoPublicId ?? "",
     signupUrl: ad.signupUrl,
     loginUrl: ad.loginUrl ?? "",
+    registrationUrl: ad.registrationUrl ?? "",
     rating: ad.rating ?? 0,
     paymentMethods: ad.paymentMethods,
     tags: ad.tags,
     displayOrder: ad.displayOrder,
     featured: ad.featured,
     published: ad.published,
+    authorName: ad.authorName ?? "",
+    authorUrl: ad.authorUrl ?? "",
+    authorAvatarUrl: ad.authorAvatarUrl ?? "",
     providers: ad.providers.map((p) => ({
       kind: p.kind,
       name: p.name,
       logoUrl: p.logoUrl ?? "",
       displayOrder: p.displayOrder,
+    })),
+    highlights: ad.highlights.map((h) => ({
+      kind: h.kind,
+      text: h.text,
+      displayOrder: h.displayOrder,
+    })),
+    facts: ad.facts.map((f) => ({
+      label: f.label,
+      value: f.value,
+      icon: f.icon ?? "",
+      displayOrder: f.displayOrder,
+    })),
+    faqs: ad.faqs.map((q) => ({
+      question: q.question,
+      answer: q.answer,
+      displayOrder: q.displayOrder,
+    })),
+    sections: ad.sections.map((s) => ({
+      heading: s.heading,
+      body: s.body,
+      displayOrder: s.displayOrder,
     })),
   };
 
