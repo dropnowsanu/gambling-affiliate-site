@@ -2,10 +2,8 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Star } from "lucide-react";
+import { ArrowLeft, CreditCard, Gift, Star, Tag } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { buttonVariants } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { prisma } from "@/lib/prisma";
@@ -48,88 +46,108 @@ export default async function CasinoPage(props: PageProps<"/casino/[slug]">) {
   return (
     <>
       <SiteHeader />
-      <main className="flex-1 container mx-auto px-4 py-10 max-w-3xl">
-        <nav className="text-sm text-muted-foreground mb-6">
-          <Link href="/" className="hover:text-foreground">
-            ← Back to all offers
-          </Link>
-        </nav>
+      <main className="flex-1">
+        <section className="relative overflow-hidden">
+          <div className="hero-orb -left-20 top-0 h-64 w-64 bg-fuchsia-500/30" />
+          <div className="hero-orb -right-20 top-24 h-72 w-72 bg-amber-400/25" />
 
-        <div className="flex items-start gap-5">
-          <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl bg-muted ring-1 ring-border">
-            <Image
-              src={ad.logoUrl}
-              alt={`${ad.name} logo`}
-              fill
-              sizes="80px"
-              className="object-contain p-1"
-              unoptimized
-            />
-          </div>
-          <div className="flex-1 min-w-0">
-            <h1 className="text-3xl font-bold tracking-tight">{ad.name}</h1>
-            {ad.rating && ad.rating > 0 ? (
-              <div className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
-                <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
-                <span className="font-medium text-foreground">
-                  {ad.rating.toFixed(1)}
-                </span>
-                <span>/ 5</span>
-              </div>
-            ) : null}
-          </div>
-        </div>
-
-        <div className="mt-6 rounded-xl border bg-card p-6">
-          <p className="text-sm uppercase tracking-wide text-muted-foreground">
-            Welcome Offer
-          </p>
-          <p className="mt-1 text-xl font-semibold">{ad.welcomeOffer}</p>
-          <div className="mt-5 flex gap-3">
-            <a
-              href={ad.signupUrl}
-              target="_blank"
-              rel="nofollow sponsored noopener noreferrer"
-              className={buttonVariants({
-                size: "lg",
-                className: "flex-1",
-              })}
+          <div className="container relative mx-auto max-w-4xl px-4 pt-10 pb-4">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition"
             >
-              Claim bonus – Sign up
-            </a>
-            {ad.loginUrl ? (
+              <ArrowLeft className="h-4 w-4" />
+              Back to all offers
+            </Link>
+          </div>
+
+          <div className="container relative mx-auto max-w-4xl px-4 pb-8">
+            <div className="flex items-start gap-5">
+              <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-2xl logo-glow ring-1 ring-white/10">
+                <Image
+                  src={ad.logoUrl}
+                  alt={`${ad.name} logo`}
+                  fill
+                  sizes="96px"
+                  className="object-contain p-2"
+                  unoptimized
+                />
+              </div>
+              <div className="flex-1 min-w-0 pt-2">
+                <h1 className="text-4xl font-extrabold tracking-tight md:text-5xl">
+                  {ad.name}
+                </h1>
+                {ad.rating && ad.rating > 0 ? (
+                  <div className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-amber-300/30 bg-amber-300/10 px-3 py-1 text-sm">
+                    <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                    <span className="font-bold text-amber-200">
+                      {ad.rating.toFixed(1)}
+                    </span>
+                    <span className="text-amber-200/70">/ 5</span>
+                  </div>
+                ) : null}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="container mx-auto max-w-4xl px-4 pb-4">
+          <div className="card-casino relative overflow-hidden rounded-2xl p-6 md:p-8">
+            <p className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-amber-200/90">
+              <Gift className="h-4 w-4" />
+              Welcome offer
+            </p>
+            <p className="mt-2 text-2xl font-extrabold leading-snug md:text-3xl">
+              {ad.welcomeOffer}
+            </p>
+            <div className="mt-6 flex flex-wrap gap-3">
               <a
-                href={ad.loginUrl}
+                href={ad.signupUrl}
                 target="_blank"
                 rel="nofollow sponsored noopener noreferrer"
-                className={buttonVariants({
-                  size: "lg",
-                  variant: "outline",
-                  className: "flex-1",
-                })}
+                className="btn-casino inline-flex h-12 flex-1 min-w-[200px] items-center justify-center rounded-xl px-6 text-sm font-bold tracking-wide"
               >
-                Existing user? Login
+                Claim bonus — Sign up
               </a>
-            ) : null}
+              {ad.loginUrl ? (
+                <a
+                  href={ad.loginUrl}
+                  target="_blank"
+                  rel="nofollow sponsored noopener noreferrer"
+                  className="btn-ghost-casino inline-flex h-12 flex-1 min-w-[200px] items-center justify-center rounded-xl px-6 text-sm font-semibold"
+                >
+                  Existing user? Login
+                </a>
+              ) : null}
+            </div>
           </div>
-        </div>
+        </section>
 
         {ad.description ? (
-          <section className="prose prose-neutral dark:prose-invert mt-8 max-w-none">
-            <h2 className="text-xl font-semibold">About {ad.name}</h2>
-            <p className="text-muted-foreground">{ad.description}</p>
+          <section className="container mx-auto max-w-4xl px-4 mt-8">
+            <h2 className="text-xl font-bold tracking-tight">
+              About {ad.name}
+            </h2>
+            <p className="mt-3 text-muted-foreground leading-relaxed">
+              {ad.description}
+            </p>
           </section>
         ) : null}
 
-        <Separator className="my-8" />
-
-        <div className="grid gap-6 sm:grid-cols-2">
+        <section className="container mx-auto max-w-4xl px-4 mt-8 grid gap-4 sm:grid-cols-2">
           {ad.tags.length > 0 ? (
-            <div>
-              <h3 className="text-sm font-medium">Categories</h3>
-              <div className="mt-2 flex flex-wrap gap-1.5">
+            <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-5">
+              <h3 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-fuchsia-300">
+                <Tag className="h-4 w-4" />
+                Categories
+              </h3>
+              <div className="mt-3 flex flex-wrap gap-1.5">
                 {ad.tags.map((t) => (
-                  <Badge key={t} variant="secondary">
+                  <Badge
+                    key={t}
+                    variant="secondary"
+                    className="rounded-full border border-white/10 bg-white/5 font-medium text-foreground/85"
+                  >
                     {t}
                   </Badge>
                 ))}
@@ -137,14 +155,17 @@ export default async function CasinoPage(props: PageProps<"/casino/[slug]">) {
             </div>
           ) : null}
           {ad.paymentMethods.length > 0 ? (
-            <div>
-              <h3 className="text-sm font-medium">Payment methods</h3>
-              <p className="mt-2 text-sm text-muted-foreground">
+            <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-5">
+              <h3 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-amber-300">
+                <CreditCard className="h-4 w-4" />
+                Payment methods
+              </h3>
+              <p className="mt-3 text-sm text-muted-foreground">
                 {ad.paymentMethods.join(", ")}
               </p>
             </div>
           ) : null}
-        </div>
+        </section>
       </main>
       <SiteFooter />
     </>

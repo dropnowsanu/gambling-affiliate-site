@@ -3,7 +3,6 @@
 import { useState, useTransition } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -56,10 +55,18 @@ export function LoginForm({ callbackUrl }: { callbackUrl: string }) {
           required
         />
       </div>
-      {error ? <p className="text-sm text-destructive">{error}</p> : null}
-      <Button type="submit" className="w-full" disabled={pending}>
+      {error ? (
+        <p className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+          {error}
+        </p>
+      ) : null}
+      <button
+        type="submit"
+        disabled={pending}
+        className="btn-casino inline-flex h-11 w-full items-center justify-center rounded-xl px-4 text-sm font-bold tracking-wide disabled:opacity-60"
+      >
         {pending ? "Signing in…" : "Sign in"}
-      </Button>
+      </button>
     </form>
   );
 }
