@@ -55,3 +55,11 @@ model AdCard {
   @@index([published, displayOrder])
   @@index([featured])
 }
+
+model Subscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}

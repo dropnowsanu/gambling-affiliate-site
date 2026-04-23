@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { Dices } from "lucide-react";
-import { siteConfig } from "@/lib/site";
+import { BrandMark } from "@/components/brand-mark";
 
 export function SiteHeader() {
   return (
@@ -8,15 +7,10 @@ export function SiteHeader() {
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <Link
           href="/"
-          className="group flex items-center gap-2.5 font-semibold tracking-tight"
+          className="group flex items-center font-semibold tracking-tight"
+          aria-label="Home"
         >
-          <span className="relative grid h-9 w-9 place-items-center overflow-hidden rounded-xl casino-gradient shadow-[0_8px_24px_-8px_rgba(236,72,153,0.6)]">
-            <Dices className="h-5 w-5 text-white" strokeWidth={2.4} />
-            <span className="absolute inset-0 bg-white/10 opacity-0 transition group-hover:opacity-100" />
-          </span>
-          <span className="text-lg font-bold tracking-tight">
-            <span className="gradient-text">{siteConfig.name}</span>
-          </span>
+          <BrandMark size={36} nameClassName="text-lg" />
         </Link>
         <nav className="flex items-center gap-1 text-sm">
           <Link
