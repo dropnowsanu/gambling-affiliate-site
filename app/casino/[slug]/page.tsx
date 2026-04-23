@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, CreditCard, Gift, Star, Tag } from "lucide-react";
+import { ArrowLeft, CreditCard, Dice5, Gift, Star, Tag, Trophy } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -39,9 +39,15 @@ export default async function CasinoPage(props: PageProps<"/casino/[slug]">) {
   const { slug } = await props.params;
   const ad = await prisma.adCard.findUnique({
     where: { slug },
-    include: { categories: true },
+    include: {
+      categories: true,
+      providers: { orderBy: [{ displayOrder: "asc" }, { name: "asc" }] },
+    },
   });
   if (!ad || !ad.published) notFound();
+
+  const sportsProviders = ad.providers.filter((p) => p.kind === "SPORTS");
+  const casinoProviders = ad.providers.filter((p) => p.kind === "CASINO");
 
   return (
     <>
@@ -69,7 +75,7 @@ export default async function CasinoPage(props: PageProps<"/casino/[slug]">) {
                   alt={`${ad.name} logo`}
                   fill
                   sizes="96px"
-                  className="object-contain p-2"
+                  className="object-cover"
                   unoptimized
                 />
               </div>
@@ -166,9 +172,115 @@ export default async function CasinoPage(props: PageProps<"/casino/[slug]">) {
             </div>
           ) : null}
         </section>
+
+        {ad.providers.length > 0 ? (
+          <section className="container mx-auto max-w-4xl px-4 mt-10">
+            <div className="mb-5 flex items-center justify-between">
+              <h2 className="text-xl font-bold tracking-tight">
+                Game &amp; sports providers
+              </h2>
+              <span className="text-xs text-muted-foreground">
+                {ad.providers.length} total
+              </span>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2">
+              <ProviderColumn
+                title="Sports providers"
+                icon={<Trophy className="h-4 w-4" />}
+                accent="from-fuchsia-500/40 via-pink-500/20 to-transparent"
+                tone="text-fuchsia-200"
+                providers={sportsProviders}
+                emptyLabel="No sports providers listed yet."
+              />
+              <ProviderColumn
+                title="Casino providers"
+                icon={<Dice5 className="h-4 w-4" />}
+                accent="from-amber-400/40 via-orange-500/20 to-transparent"
+                tone="text-amber-200"
+                providers={casinoProviders}
+                emptyLabel="No casino providers listed yet."
+              />
+            </div>
+          </section>
+        ) : null}
       </main>
       <SiteFooter />
     </>
+  );
+}
+
+type ProviderRow = {
+  id: string;
+  name: string;
+  logoUrl: string | null;
+};
+
+function ProviderColumn({
+  title,
+  icon,
+  accent,
+  tone,
+  providers,
+  emptyLabel,
+}: {
+  title: string;
+  icon: React.ReactNode;
+  accent: string;
+  tone: string;
+  providers: ProviderRow[];
+  emptyLabel: string;
+}) {
+  return (
+    <div className="group relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.04] to-white/[0.015] p-[1px] shadow-[0_30px_80px_-40px_rgba(236,72,153,0.35)] transition hover:border-white/20">
+      <div
+        className={`pointer-events-none absolute -top-24 left-1/2 h-40 w-[140%] -translate-x-1/2 bg-gradient-radial ${accent} opacity-60 blur-2xl`}
+        aria-hidden
+      />
+      <div className="relative rounded-2xl bg-background/70 p-5 backdrop-blur-sm">
+        <div className="flex items-center justify-between border-b border-white/5 pb-3">
+          <h3 className={`flex items-center gap-2 text-sm font-bold uppercase tracking-[0.18em] ${tone}`}>
+            {icon}
+            {title}
+          </h3>
+          <span className="rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[10px] font-bold text-foreground/70">
+            {providers.length}
+          </span>
+        </div>
+
+        {providers.length === 0 ? (
+          <p className="mt-4 text-xs text-muted-foreground">{emptyLabel}</p>
+        ) : (
+          <ul className="mt-3 divide-y divide-white/5">
+            {providers.map((p) => (
+              <li
+                key={p.id}
+                className="flex items-center gap-3 py-2.5 transition hover:bg-white/[0.02]"
+              >
+                <div className="relative h-9 w-9 flex-shrink-0 overflow-hidden rounded-lg border border-white/10 bg-white/[0.05]">
+                  {p.logoUrl ? (
+                    <Image
+                      src={p.logoUrl}
+                      alt={`${p.name} logo`}
+                      fill
+                      sizes="36px"
+                      className="object-contain p-1"
+                      unoptimized
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-[11px] font-bold text-foreground/60">
+                      {p.name.slice(0, 2).toUpperCase()}
+                    </div>
+                  )}
+                </div>
+                <span className="min-w-0 flex-1 truncate text-sm font-medium text-foreground/90">
+                  {p.name}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </div>
   );
 }
 
