@@ -1,32 +1,45 @@
 import Link from "next/link";
+import { Dices } from "lucide-react";
 import { siteConfig } from "@/lib/site";
 
 export function SiteHeader() {
   return (
-    <header className="border-b border-border/60 bg-background/80 backdrop-blur sticky top-0 z-40">
+    <header className="sticky top-0 z-40 border-b border-white/5 bg-background/70 backdrop-blur-xl">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <Link href="/" className="flex items-center gap-2 font-semibold tracking-tight">
-          <span className="inline-block h-6 w-6 rounded-md bg-gradient-to-br from-amber-400 via-rose-500 to-purple-600" />
-          <span className="text-lg">{siteConfig.name}</span>
+        <Link
+          href="/"
+          className="group flex items-center gap-2.5 font-semibold tracking-tight"
+        >
+          <span className="relative grid h-9 w-9 place-items-center overflow-hidden rounded-xl casino-gradient shadow-[0_8px_24px_-8px_rgba(236,72,153,0.6)]">
+            <Dices className="h-5 w-5 text-white" strokeWidth={2.4} />
+            <span className="absolute inset-0 bg-white/10 opacity-0 transition group-hover:opacity-100" />
+          </span>
+          <span className="text-lg font-bold tracking-tight">
+            <span className="gradient-text">{siteConfig.name}</span>
+          </span>
         </Link>
-        <nav className="flex items-center gap-6 text-sm text-muted-foreground">
-          <Link href="/" className="hover:text-foreground">
+        <nav className="flex items-center gap-1 text-sm">
+          <Link
+            href="/"
+            className="rounded-full px-3 py-1.5 text-foreground/80 hover:text-foreground hover:bg-white/5 transition"
+          >
             Casinos
           </Link>
-          <a
-            href="#top-offers"
-            className="hover:text-foreground hidden sm:inline"
+          <Link
+            href="/#top-offers"
+            className="hidden sm:inline rounded-full px-3 py-1.5 text-foreground/80 hover:text-foreground hover:bg-white/5 transition"
           >
             Top Offers
-          </a>
-          <a
-            href="#responsible-gaming"
-            className="hover:text-foreground hidden sm:inline"
+          </Link>
+          <Link
+            href="/#responsible-gaming"
+            className="hidden sm:inline rounded-full px-3 py-1.5 text-foreground/80 hover:text-foreground hover:bg-white/5 transition"
           >
-            Responsible Gaming
-          </a>
+            18+ Responsible
+          </Link>
         </nav>
       </div>
+      <div className="chip-divider" />
     </header>
   );
 }
