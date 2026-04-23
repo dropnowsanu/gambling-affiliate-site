@@ -1,7 +1,8 @@
 import Link from "next/link";
 import type { SVGProps } from "react";
-import { Dices, Mail, ShieldCheck } from "lucide-react";
+import { Mail, ShieldCheck } from "lucide-react";
 import { siteConfig } from "@/lib/site";
+import { BrandMark } from "@/components/brand-mark";
 import { NewsletterForm } from "@/components/newsletter-form";
 import {
   FacebookIcon,
@@ -57,14 +58,10 @@ export function SiteFooter() {
           <div className="space-y-4 lg:col-span-2">
             <Link
               href="/"
-              className="inline-flex items-center gap-2.5 font-semibold text-foreground"
+              className="inline-flex font-semibold text-foreground"
+              aria-label="Home"
             >
-              <span className="grid h-9 w-9 place-items-center rounded-xl casino-gradient">
-                <Dices className="h-5 w-5 text-white" strokeWidth={2.4} />
-              </span>
-              <span className="gradient-text text-lg font-bold tracking-tight">
-                {siteConfig.name}
-              </span>
+              <BrandMark size={40} nameClassName="text-lg" />
             </Link>
             <p className="max-w-sm text-sm text-muted-foreground">
               Hand-picked online casinos and sportsbooks with the best welcome
