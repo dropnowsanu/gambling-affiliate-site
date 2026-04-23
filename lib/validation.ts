@@ -1,5 +1,25 @@
 import { z } from "zod";
 
+export const providerKindSchema = z.enum(["SPORTS", "CASINO"]);
+export type ProviderKindValue = z.infer<typeof providerKindSchema>;
+
+export const providerInputSchema = z.object({
+  kind: providerKindSchema,
+  name: z.string().trim().min(1).max(80),
+  logoUrl: z
+    .string()
+    .trim()
+    .url()
+    .max(2048)
+    .optional()
+    .or(z.literal("").transform(() => undefined)),
+  displayOrder: z.coerce.number().int().default(0),
+});
+
+export type ProviderInput = z.infer<typeof providerInputSchema>;
+
+export const providersListSchema = z.array(providerInputSchema).max(100);
+
 export const adCardSchema = z.object({
   name: z.string().min(1, "Name is required").max(120),
   slug: z

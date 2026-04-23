@@ -51,9 +51,28 @@ model AdCard {
   updatedAt       DateTime @updatedAt
 
   categories Category[] @relation("AdCardCategories")
+  providers  Provider[]
 
   @@index([published, displayOrder])
   @@index([featured])
+}
+
+enum ProviderKind {
+  SPORTS
+  CASINO
+}
+
+model Provider {
+  id           String       @id @default(cuid())
+  adCardId     String
+  adCard       AdCard       @relation(fields: [adCardId], references: [id], onDelete: Cascade)
+  kind         ProviderKind
+  name         String
+  logoUrl      String?
+  displayOrder Int          @default(0)
+  createdAt    DateTime     @default(now())
+
+  @@index([adCardId, kind, displayOrder])
 }
 
 model Subscriber {

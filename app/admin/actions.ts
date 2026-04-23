@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { deleteImage } from "@/lib/cloudinary";
-import { adCardSchema } from "@/lib/validation";
+import { adCardSchema, providersListSchema } from "@/lib/validation";
 import { slugify } from "@/lib/slug";
 
 async function requireAdmin() {
@@ -41,6 +41,18 @@ function parseForm(form: FormData) {
   };
 }
 
+function parseProviders(form: FormData) {
+  const raw = form.get("providers");
+  if (typeof raw !== "string" || raw.trim() === "") return [];
+  try {
+    const json = JSON.parse(raw);
+    const parsed = providersListSchema.safeParse(json);
+    return parsed.success ? parsed.data : [];
+  } catch {
+    return [];
+  }
+}
+
 export type ActionResult =
   | { ok: true; id: string }
   | { ok: false; error: string; fieldErrors?: Record<string, string[] | undefined> };
@@ -62,6 +74,8 @@ export async function createAdCard(
 
   const slug = (parsed.data.slug?.trim() || slugify(parsed.data.name)) as string;
 
+  const providers = parseProviders(formData);
+
   try {
     const created = await prisma.adCard.create({
       data: {
@@ -79,6 +93,16 @@ export async function createAdCard(
         displayOrder: parsed.data.displayOrder,
         featured: parsed.data.featured,
         published: parsed.data.published,
+        providers: providers.length
+          ? {
+              create: providers.map((p, i) => ({
+                kind: p.kind,
+                name: p.name,
+                logoUrl: p.logoUrl ?? null,
+                displayOrder: Number.isFinite(p.displayOrder) ? p.displayOrder : i,
+              })),
+            }
+          : undefined,
       },
     });
     revalidatePath("/");
@@ -120,26 +144,44 @@ export async function updateAdCard(
     await deleteImage(existing.logoPublicId);
   }
 
+  const providers = parseProviders(formData);
+
   try {
-    await prisma.adCard.update({
-      where: { id },
-      data: {
-        name: parsed.data.name,
-        slug,
-        description: parsed.data.description || null,
-        welcomeOffer: parsed.data.welcomeOffer,
-        logoUrl: parsed.data.logoUrl,
-        logoPublicId: parsed.data.logoPublicId || null,
-        signupUrl: parsed.data.signupUrl,
-        loginUrl: parsed.data.loginUrl || null,
-        rating: parsed.data.rating ?? 0,
-        paymentMethods: parsed.data.paymentMethods,
-        tags: parsed.data.tags,
-        displayOrder: parsed.data.displayOrder,
-        featured: parsed.data.featured,
-        published: parsed.data.published,
-      },
-    });
+    await prisma.$transaction([
+      prisma.adCard.update({
+        where: { id },
+        data: {
+          name: parsed.data.name,
+          slug,
+          description: parsed.data.description || null,
+          welcomeOffer: parsed.data.welcomeOffer,
+          logoUrl: parsed.data.logoUrl,
+          logoPublicId: parsed.data.logoPublicId || null,
+          signupUrl: parsed.data.signupUrl,
+          loginUrl: parsed.data.loginUrl || null,
+          rating: parsed.data.rating ?? 0,
+          paymentMethods: parsed.data.paymentMethods,
+          tags: parsed.data.tags,
+          displayOrder: parsed.data.displayOrder,
+          featured: parsed.data.featured,
+          published: parsed.data.published,
+        },
+      }),
+      prisma.provider.deleteMany({ where: { adCardId: id } }),
+      ...(providers.length
+        ? [
+            prisma.provider.createMany({
+              data: providers.map((p, i) => ({
+                adCardId: id,
+                kind: p.kind,
+                name: p.name,
+                logoUrl: p.logoUrl ?? null,
+                displayOrder: Number.isFinite(p.displayOrder) ? p.displayOrder : i,
+              })),
+            }),
+          ]
+        : []),
+    ]);
     revalidatePath("/");
     revalidatePath("/admin");
     revalidatePath(`/casino/${slug}`);

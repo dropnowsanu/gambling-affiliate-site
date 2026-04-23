@@ -7,7 +7,12 @@ export default async function EditAdPage(
   props: PageProps<"/admin/ads/[id]">,
 ) {
   const { id } = await props.params;
-  const ad = await prisma.adCard.findUnique({ where: { id } });
+  const ad = await prisma.adCard.findUnique({
+    where: { id },
+    include: {
+      providers: { orderBy: [{ kind: "asc" }, { displayOrder: "asc" }] },
+    },
+  });
   if (!ad) notFound();
 
   const initial: AdFormInitial = {
@@ -26,6 +31,12 @@ export default async function EditAdPage(
     displayOrder: ad.displayOrder,
     featured: ad.featured,
     published: ad.published,
+    providers: ad.providers.map((p) => ({
+      kind: p.kind,
+      name: p.name,
+      logoUrl: p.logoUrl ?? "",
+      displayOrder: p.displayOrder,
+    })),
   };
 
   const boundAction = async (

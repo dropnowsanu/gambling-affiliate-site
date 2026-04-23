@@ -11,6 +11,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import type { ActionResult } from "../actions";
 
+export type ProviderKindValue = "SPORTS" | "CASINO";
+
+export type ProviderDraft = {
+  key: string;
+  kind: ProviderKindValue;
+  name: string;
+  logoUrl: string;
+  displayOrder: number;
+};
+
 export type AdFormInitial = {
   id?: string;
   name: string;
@@ -27,6 +37,7 @@ export type AdFormInitial = {
   displayOrder: number;
   featured: boolean;
   published: boolean;
+  providers: { kind: ProviderKindValue; name: string; logoUrl: string; displayOrder: number }[];
 };
 
 export const emptyInitial: AdFormInitial = {
@@ -44,6 +55,7 @@ export const emptyInitial: AdFormInitial = {
   displayOrder: 0,
   featured: false,
   published: true,
+  providers: [],
 };
 
 export function AdForm({
@@ -80,6 +92,50 @@ export function AdForm({
   });
   const [uploading, startUpload] = useTransition();
   const fileRef = useRef<HTMLInputElement>(null);
+
+  const [providers, setProviders] = useState<ProviderDraft[]>(() =>
+    initial.providers.map((p, i) => ({
+      key: `init-${i}`,
+      kind: p.kind,
+      name: p.name,
+      logoUrl: p.logoUrl,
+      displayOrder: p.displayOrder,
+    })),
+  );
+
+  const addProvider = (kind: ProviderKindValue) => {
+    setProviders((curr) => [
+      ...curr,
+      {
+        key: `new-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        kind,
+        name: "",
+        logoUrl: "",
+        displayOrder: curr.filter((p) => p.kind === kind).length,
+      },
+    ]);
+  };
+
+  const updateProvider = (key: string, patch: Partial<ProviderDraft>) => {
+    setProviders((curr) =>
+      curr.map((p) => (p.key === key ? { ...p, ...patch } : p)),
+    );
+  };
+
+  const removeProvider = (key: string) => {
+    setProviders((curr) => curr.filter((p) => p.key !== key));
+  };
+
+  const providersJson = JSON.stringify(
+    providers
+      .filter((p) => p.name.trim())
+      .map((p) => ({
+        kind: p.kind,
+        name: p.name.trim(),
+        logoUrl: p.logoUrl.trim() || undefined,
+        displayOrder: p.displayOrder,
+      })),
+  );
 
   const err = state && !state.ok ? state.fieldErrors : undefined;
 
@@ -285,6 +341,37 @@ export function AdForm({
         />
       </Field>
 
+      <input type="hidden" name="providers" value={providersJson} />
+
+      <section className="space-y-4 rounded-xl border bg-muted/30 p-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-sm font-semibold">Sports & Casino providers</h3>
+            <p className="text-xs text-muted-foreground">
+              Rendered as two columns on the casino detail page.
+            </p>
+          </div>
+        </div>
+
+        <ProviderList
+          title="Sports providers"
+          kind="SPORTS"
+          items={providers.filter((p) => p.kind === "SPORTS")}
+          onAdd={() => addProvider("SPORTS")}
+          onUpdate={updateProvider}
+          onRemove={removeProvider}
+        />
+
+        <ProviderList
+          title="Casino providers"
+          kind="CASINO"
+          items={providers.filter((p) => p.kind === "CASINO")}
+          onAdd={() => addProvider("CASINO")}
+          onUpdate={updateProvider}
+          onRemove={removeProvider}
+        />
+      </section>
+
       <div className="flex items-center gap-3 border-t pt-6">
         <Button type="submit" disabled={pending || uploading}>
           {pending ? "Saving…" : submitLabel}
@@ -325,6 +412,66 @@ function Field({
         <p className="text-xs text-muted-foreground">{hint}</p>
       ) : null}
       {error ? <p className="text-xs text-destructive">{error}</p> : null}
+    </div>
+  );
+}
+
+function ProviderList({
+  title,
+  kind,
+  items,
+  onAdd,
+  onUpdate,
+  onRemove,
+}: {
+  title: string;
+  kind: ProviderKindValue;
+  items: ProviderDraft[];
+  onAdd: () => void;
+  onUpdate: (key: string, patch: Partial<ProviderDraft>) => void;
+  onRemove: (key: string) => void;
+}) {
+  return (
+    <div className="space-y-2 rounded-lg border bg-background/40 p-3">
+      <div className="flex items-center justify-between">
+        <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          {title}
+        </h4>
+        <Button type="button" size="sm" variant="outline" onClick={onAdd}>
+          + Add {kind === "SPORTS" ? "sports" : "casino"} provider
+        </Button>
+      </div>
+      {items.length === 0 ? (
+        <p className="text-xs text-muted-foreground">None yet.</p>
+      ) : (
+        <ul className="space-y-2">
+          {items.map((p) => (
+            <li
+              key={p.key}
+              className="grid grid-cols-1 gap-2 rounded-md border bg-background p-2 sm:grid-cols-[1fr_1fr_auto]"
+            >
+              <Input
+                placeholder="Provider name (e.g. Pragmatic Play)"
+                value={p.name}
+                onChange={(e) => onUpdate(p.key, { name: e.target.value })}
+              />
+              <Input
+                placeholder="Logo URL (optional)"
+                value={p.logoUrl}
+                onChange={(e) => onUpdate(p.key, { logoUrl: e.target.value })}
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => onRemove(p.key)}
+              >
+                Remove
+              </Button>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
