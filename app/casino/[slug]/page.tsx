@@ -63,7 +63,7 @@ export default async function CasinoPage(props: PageProps<"/casino/[slug]">) {
 
           <div className="container relative mx-auto max-w-4xl px-4 pb-8">
             <div className="flex items-start gap-5">
-              <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-2xl logo-glow ring-1 ring-white/10">
+              <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-full logo-glow ring-1 ring-white/15">
                 <Image
                   src={ad.logoUrl}
                   alt={`${ad.name} logo`}
