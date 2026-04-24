@@ -1,5 +1,6 @@
 import Image from "next/image";
-import { Crown, Gift, Star } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, Crown, Gift, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
@@ -34,13 +35,13 @@ export function AdCard({ ad }: { ad: AdCardData }) {
       ) : null}
 
       <div className="flex items-center gap-4">
-        <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-xl logo-glow ring-1 ring-white/10">
+        <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-full logo-glow ring-1 ring-white/15">
           <Image
             src={ad.logoUrl}
             alt={`${ad.name} logo`}
             fill
             sizes="64px"
-            className="object-contain p-1.5"
+            className="object-cover"
             unoptimized
           />
         </div>
@@ -97,25 +98,34 @@ export function AdCard({ ad }: { ad: AdCardData }) {
         ) : null}
       </div>
 
-      <div className="mt-5 flex gap-2.5">
-        <a
-          href={ad.signupUrl}
-          target="_blank"
-          rel="nofollow sponsored noopener noreferrer"
-          className="btn-casino inline-flex h-11 flex-1 items-center justify-center rounded-xl px-4 text-sm font-bold tracking-wide"
-        >
-          Sign up
-        </a>
-        {ad.loginUrl ? (
+      <div className="mt-5 flex flex-col gap-2.5">
+        <div className="flex gap-2.5">
           <a
-            href={ad.loginUrl}
+            href={ad.signupUrl}
             target="_blank"
             rel="nofollow sponsored noopener noreferrer"
-            className="btn-ghost-casino inline-flex h-11 flex-1 items-center justify-center rounded-xl px-4 text-sm font-semibold"
+            className="btn-casino inline-flex h-11 flex-1 items-center justify-center rounded-xl px-4 text-sm font-bold tracking-wide"
           >
-            Login
+            Sign up
           </a>
-        ) : null}
+          {ad.loginUrl ? (
+            <a
+              href={ad.loginUrl}
+              target="_blank"
+              rel="nofollow sponsored noopener noreferrer"
+              className="btn-ghost-casino inline-flex h-11 flex-1 items-center justify-center rounded-xl px-4 text-sm font-semibold"
+            >
+              Login
+            </a>
+          ) : null}
+        </div>
+        <Link
+          href={`/casino/${ad.slug}`}
+          className="group/details inline-flex h-10 items-center justify-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.03] px-4 text-sm font-semibold text-foreground/90 transition hover:border-white/25 hover:bg-white/[0.07] hover:text-foreground"
+        >
+          View details
+          <ArrowRight className="h-4 w-4 transition-transform group-hover/details:translate-x-0.5" />
+        </Link>
       </div>
     </article>
   );

@@ -41,17 +41,104 @@ model AdCard {
   logoPublicId    String?
   signupUrl       String
   loginUrl        String?
+  registrationUrl String?
   rating          Float?   @default(0)
   paymentMethods  String[] @default([])
   tags            String[] @default([])
   displayOrder    Int      @default(0)
   featured        Boolean  @default(false)
   published       Boolean  @default(true)
+  authorName      String?
+  authorUrl       String?
+  authorAvatarUrl String?
+  reviewUpdatedAt DateTime?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  categories Category[] @relation("AdCardCategories")
+  categories  Category[]    @relation("AdCardCategories")
+  providers   Provider[]
+  highlights  AdHighlight[]
+  facts       AdFact[]
+  faqs        AdFaq[]
+  sections    AdSection[]
 
   @@index([published, displayOrder])
   @@index([featured])
+}
+
+enum HighlightKind {
+  PRO
+  CON
+}
+
+model AdHighlight {
+  id           String        @id @default(cuid())
+  adCardId     String
+  adCard       AdCard        @relation(fields: [adCardId], references: [id], onDelete: Cascade)
+  kind         HighlightKind
+  text         String
+  displayOrder Int           @default(0)
+
+  @@index([adCardId, kind, displayOrder])
+}
+
+model AdFact {
+  id           String @id @default(cuid())
+  adCardId     String
+  adCard       AdCard @relation(fields: [adCardId], references: [id], onDelete: Cascade)
+  label        String
+  value        String
+  icon         String?
+  displayOrder Int    @default(0)
+
+  @@index([adCardId, displayOrder])
+}
+
+model AdFaq {
+  id           String @id @default(cuid())
+  adCardId     String
+  adCard       AdCard @relation(fields: [adCardId], references: [id], onDelete: Cascade)
+  question     String
+  answer       String @db.Text
+  displayOrder Int    @default(0)
+
+  @@index([adCardId, displayOrder])
+}
+
+model AdSection {
+  id           String @id @default(cuid())
+  adCardId     String
+  adCard       AdCard @relation(fields: [adCardId], references: [id], onDelete: Cascade)
+  slug         String
+  heading      String
+  body         String @db.Text
+  displayOrder Int    @default(0)
+
+  @@index([adCardId, displayOrder])
+}
+
+enum ProviderKind {
+  SPORTS
+  CASINO
+}
+
+model Provider {
+  id           String       @id @default(cuid())
+  adCardId     String
+  adCard       AdCard       @relation(fields: [adCardId], references: [id], onDelete: Cascade)
+  kind         ProviderKind
+  name         String
+  logoUrl      String?
+  displayOrder Int          @default(0)
+  createdAt    DateTime     @default(now())
+
+  @@index([adCardId, kind, displayOrder])
+}
+
+model Subscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
 }
