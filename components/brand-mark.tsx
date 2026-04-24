@@ -1,4 +1,7 @@
+"use client";
+
 import Image from "next/image";
+import { motion } from "framer-motion";
 import { siteConfig } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
@@ -18,28 +21,61 @@ export function BrandMark({
   iconOnly,
   className,
 }: BrandMarkProps) {
+  const name = siteConfig.name.toUpperCase();
   return (
-    <span
-      className={cn("inline-flex items-center gap-2.5", className)}
+    <motion.span
+      className={cn("group inline-flex items-center gap-2.5", className)}
+      initial={{ opacity: 0, y: -8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
     >
-      <Image
-        src="/logo.png"
-        alt={`${siteConfig.name} logo`}
-        width={size}
-        height={size}
-        priority
-        className="rounded-full ring-1 ring-white/15 shadow-[0_6px_18px_-6px_rgba(236,72,153,0.55)]"
-      />
+      <motion.span
+        className="relative inline-flex"
+        whileHover={{ rotate: [0, -6, 6, -3, 0], scale: 1.06 }}
+        transition={{ duration: 0.6, ease: "easeInOut" }}
+      >
+        <Image
+          src="/logo.png"
+          alt={`${siteConfig.name} logo`}
+          width={size}
+          height={size}
+          priority
+          className="rounded-full ring-1 ring-white/15 shadow-[0_6px_18px_-6px_rgba(236,72,153,0.55)]"
+        />
+        <motion.span
+          aria-hidden
+          className="pointer-events-none absolute inset-0 rounded-full"
+          animate={{
+            boxShadow: [
+              "0 0 0 0 rgba(236,72,153,0.55)",
+              "0 0 0 8px rgba(236,72,153,0)",
+            ],
+          }}
+          transition={{ duration: 2.2, repeat: Infinity, ease: "easeOut" }}
+        />
+      </motion.span>
       {iconOnly ? null : (
-        <span
+        <motion.span
           className={cn(
-            "gradient-text text-base font-bold tracking-tight",
+            "gradient-text font-extrabold uppercase tracking-[0.18em]",
             nameClassName,
           )}
+          whileHover={{ letterSpacing: "0.28em" }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
         >
-          {siteConfig.name}
-        </span>
+          {name.split("").map((ch, i) => (
+            <motion.span
+              key={`${ch}-${i}`}
+              className="inline-block"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.08 + i * 0.035, duration: 0.35 }}
+            >
+              {ch === " " ? "\u00A0" : ch}
+            </motion.span>
+          ))}
+        </motion.span>
       )}
-    </span>
+    </motion.span>
   );
 }
